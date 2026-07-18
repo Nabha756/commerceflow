@@ -16,6 +16,10 @@ export const PRODUCT_SERVICE_URL =
     process.env.PRODUCT_SERVICE_URL ||
     "http://localhost:3002";
 
+    export const ORDER_SERVICE_URL =
+    process.env.ORDER_SERVICE_URL ||
+    "http://localhost:3003";
+
 
 export const JWT_SECRET =
     process.env.JWT_SECRET || "";

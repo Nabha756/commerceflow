@@ -36,7 +36,7 @@ export function authenticate(
             );
 
 
-        req.user = decoded;
+        req.user = decoded;  
 
 
         next();
