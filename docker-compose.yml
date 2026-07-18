@@ -4,9 +4,7 @@ services:
 
   postgres:
     image: postgres:16
-
     container_name: commerceflow-postgres
-
     restart: unless-stopped
 
     environment:
@@ -24,12 +22,42 @@ services:
       - commerceflow-network
 
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: commerceflow-rabbitmq
+    restart: unless-stopped
+
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - commerceflow-network
+
+
+  redis:
+    image: redis:7
+    container_name: commerceflow-redis
+    restart: unless-stopped
+
+    ports:
+      - "6379:6379"
+
+    networks:
+      - commerceflow-network
+
+
   auth-service:
     build:
       context: ./services/auth-service
 
     container_name: commerceflow-auth
-
     restart: unless-stopped
 
     ports:
@@ -37,10 +65,15 @@ services:
 
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/commerceflow
+      RABBITMQ_URL: amqp://rabbitmq:5672
       PORT: 3001
 
     depends_on:
-      - postgres
+      postgres:
+        condition: service_started
+
+      rabbitmq:
+        condition: service_healthy
 
     networks:
       - commerceflow-network
@@ -51,7 +84,6 @@ services:
       context: ./services/product-service
 
     container_name: commerceflow-product
-
     restart: unless-stopped
 
     ports:
@@ -59,10 +91,12 @@ services:
 
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/commerceflow
+      REDIS_URL: redis://redis:6379
       PORT: 3002
 
     depends_on:
       - postgres
+      - redis
 
     networks:
       - commerceflow-network
@@ -73,7 +107,6 @@ services:
       context: ./services/order-service
 
     container_name: commerceflow-order
-
     restart: unless-stopped
 
     ports:
@@ -95,7 +128,6 @@ services:
       context: ./services/gateway
 
     container_name: commerceflow-gateway
-
     restart: unless-stopped
 
     ports:
