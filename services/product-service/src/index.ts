@@ -6,10 +6,8 @@ import productRoutes from "./routes/product.routes";
 
 const app = express();
 
-
 app.use(cors());
 app.use(express.json());
-
 
 app.get("/", (req, res) => {
     res.json({
@@ -17,12 +15,8 @@ app.get("/", (req, res) => {
     });
 });
 
-
-app.use("/products", productRoutes);
-
+app.use("/api/products", productRoutes);
 
 app.listen(PORT, () => {
-    console.log(
-        `Product Service running on port ${PORT}`
-    );
+    console.log(`Product Service running on port ${PORT}`);
 });

@@ -1,6 +1,7 @@
 version: "3.9"
 
 services:
+
   postgres:
     image: postgres:16
 
@@ -19,5 +20,106 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+    networks:
+      - commerceflow-network
+
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+
+    container_name: commerceflow-auth
+
+    restart: unless-stopped
+
+    ports:
+      - "3001:3001"
+
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/commerceflow
+      PORT: 3001
+
+    depends_on:
+      - postgres
+
+    networks:
+      - commerceflow-network
+
+
+  product-service:
+    build:
+      context: ./services/product-service
+
+    container_name: commerceflow-product
+
+    restart: unless-stopped
+
+    ports:
+      - "3002:3002"
+
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/commerceflow
+      PORT: 3002
+
+    depends_on:
+      - postgres
+
+    networks:
+      - commerceflow-network
+
+
+  order-service:
+    build:
+      context: ./services/order-service
+
+    container_name: commerceflow-order
+
+    restart: unless-stopped
+
+    ports:
+      - "3003:3003"
+
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/commerceflow
+      PORT: 3003
+
+    depends_on:
+      - postgres
+
+    networks:
+      - commerceflow-network
+
+
+  gateway:
+    build:
+      context: ./services/gateway
+
+    container_name: commerceflow-gateway
+
+    restart: unless-stopped
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:3001/api/auth
+      PRODUCT_SERVICE_URL: http://product-service:3002/api
+      ORDER_SERVICE_URL: http://order-service:3003/api/orders
+      PORT: 3000
+
+    depends_on:
+      - auth-service
+      - product-service
+      - order-service
+
+    networks:
+      - commerceflow-network
+
+
 volumes:
   postgres_data:
+
+
+networks:
+  commerceflow-network:
+    driver: bridge
