@@ -7,12 +7,12 @@ export async function createProduct(data: any) {
 }
 
 
-export async function getProducts() {
+export async function findAllProducts() {
     return prisma.product.findMany();
 }
 
 
-export async function getProductById(id: string) {
+export async function findProductById(id: string) {
     return prisma.product.findUnique({
         where: {
             id,
