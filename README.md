@@ -264,7 +264,7 @@ This project focuses on learning:
 **Nabha Kulkarni**
 
 * GitHub: https://github.com/Nabha756
-* LinkedIn: *(Add your LinkedIn profile URL here)*
+
 
 ---
 
